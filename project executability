@@ -1,0 +1,17 @@
+The Online Quiz Application is a fully executable Java desktop application developed using Core Java and Java Swing. It can be executed on any system having JDK 8 or above installed.
+
+The project consists of multiple .java files that work together to provide the complete quiz functionality, including the graphical user interface, MCQ questions, timer, answer validation, score calculation, percentage, and grade generation.
+
+Execution Steps:
+
+Install JDK 8 or above.
+Open the project folder in VS Code or any Java IDE.
+
+Compile all Java files:
+
+javac *.java
+
+Run the main class:
+
+java Main
+The GUI-based Online Quiz Application will launch successfully.
