@@ -1,0 +1,489 @@
+import os, zipfile, textwrap, shutil
+
+base = "/mnt/data/OnlineQuizApplication"
+if os.path.exists(base):
+    shutil.rmtree(base)
+os.makedirs(base)
+
+files = {
+"Main.java": r'''import javax.swing.SwingUtilities;
+
+public class Main {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LoginFrame());
+    }
+}
+''',
+
+"Question.java": r'''public class Question {
+    private final String question;
+    private final String[] options;
+    private final int correctAnswer;
+
+    public Question(String question, String[] options, int correctAnswer) {
+        this.question = question;
+        this.options = options;
+        this.correctAnswer = correctAnswer;
+    }
+
+    public String getQuestion() { return question; }
+    public String[] getOptions() { return options; }
+    public int getCorrectAnswer() { return correctAnswer; }
+}
+''',
+
+"QuizManager.java": r'''import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class QuizManager {
+    private final List<Question> questions = new ArrayList<>();
+
+    public QuizManager() {
+        loadQuestions();
+    }
+
+    private void loadQuestions() {
+        questions.add(new Question(
+            "Which keyword is used to inherit a class in Java?",
+            new String[]{"implements", "extends", "inherits", "super"},
+            1));
+
+        questions.add(new Question(
+            "Which method is the entry point of a Java application?",
+            new String[]{"start()", "run()", "main()", "init()"},
+            2));
+
+        questions.add(new Question(
+            "Which of these is NOT a primitive data type in Java?",
+            new String[]{"int", "float", "String", "char"},
+            2));
+
+        questions.add(new Question(
+            "What does JVM stand for?",
+            new String[]{"Java Variable Machine", "Java Virtual Machine",
+                         "Java Verified Machine", "Java Visual Machine"},
+            1));
+
+        questions.add(new Question(
+            "Which collection does not allow duplicate elements?",
+            new String[]{"List", "Set", "ArrayList", "Vector"},
+            1));
+
+        questions.add(new Question(
+            "Which keyword is used to create an object?",
+            new String[]{"class", "new", "object", "create"},
+            1));
+
+        questions.add(new Question(
+            "Which concept allows the same method name with different parameters?",
+            new String[]{"Inheritance", "Encapsulation", "Method overloading", "Abstraction"},
+            2));
+
+        questions.add(new Question(
+            "Which access modifier makes a member accessible only inside its class?",
+            new String[]{"public", "protected", "default", "private"},
+            3));
+
+        questions.add(new Question(
+            "Which exception is thrown when an integer is divided by zero?",
+            new String[]{"IOException", "ArithmeticException", "NullPointerException", "ClassNotFoundException"},
+            1));
+
+        questions.add(new Question(
+            "Which keyword prevents a class from being inherited?",
+            new String[]{"static", "final", "private", "const"},
+            1));
+
+        questions.add(new Question(
+            "Which class is commonly used for mutable strings?",
+            new String[]{"StringBuilder", "String", "Character", "Scanner"},
+            0));
+
+        questions.add(new Question(
+            "Which loop is guaranteed to execute at least once?",
+            new String[]{"for", "while", "do-while", "enhanced for"},
+            2));
+
+        questions.add(new Question(
+            "Which package contains the Scanner class?",
+            new String[]{"java.io", "java.util", "java.lang", "java.net"},
+            1));
+
+        questions.add(new Question(
+            "Which OOP concept hides implementation details?",
+            new String[]{"Abstraction", "Inheritance", "Compilation", "Casting"},
+            0));
+
+        questions.add(new Question(
+            "What is the default value of an int instance variable?",
+            new String[]{"null", "1", "0", "undefined"},
+            2));
+
+        questions.add(new Question(
+            "Which operator compares two primitive values for equality?",
+            new String[]{"=", "==", "!=", "==="},
+            1));
+
+        questions.add(new Question(
+            "Which keyword refers to the current object?",
+            new String[]{"self", "this", "current", "super"},
+            1));
+
+        questions.add(new Question(
+            "Which feature allows one class to have multiple constructors?",
+            new String[]{"Constructor overloading", "Constructor overriding",
+                         "Multiple inheritance", "Casting"},
+            0));
+
+        questions.add(new Question(
+            "Which keyword is used to handle an exception?",
+            new String[]{"catch", "throwing", "error", "exception"},
+            0));
+
+        questions.add(new Question(
+            "Java source code is compiled into what?",
+            new String[]{"Machine code", "Bytecode", "Assembly code", "Binary-only code"},
+            1));
+    }
+
+    public List<Question> getQuestions() {
+        List<Question> copy = new ArrayList<>(questions);
+        Collections.shuffle(copy);
+        return copy;
+    }
+}
+''',
+
+"LoginFrame.java": r'''import javax.swing.*;
+import java.awt.*;
+
+public class LoginFrame extends JFrame {
+    private final JTextField nameField = new JTextField();
+
+    public LoginFrame() {
+        setTitle("Online Quiz Application");
+        setSize(520, 360);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel title = new JLabel("ONLINE QUIZ APPLICATION", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 24));
+
+        JLabel subtitle = new JLabel("Java MCQ Test", SwingConstants.CENTER);
+        subtitle.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        JLabel nameLabel = new JLabel("Enter your name:");
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        nameField.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        JButton startButton = new JButton("START QUIZ");
+        startButton.setFont(new Font("Arial", Font.BOLD, 15));
+        startButton.addActionListener(e -> startQuiz());
+
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        panel.add(title, gbc);
+        gbc.gridy = 1;
+        panel.add(subtitle, gbc);
+        gbc.gridy = 2; gbc.gridwidth = 1;
+        panel.add(nameLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(nameField, gbc);
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        panel.add(startButton, gbc);
+
+        add(panel);
+        setVisible(true);
+    }
+
+    private void startQuiz() {
+        String name = nameField.getText().trim();
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter your name.",
+                    "Name Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        dispose();
+        new QuizFrame(name);
+    }
+}
+''',
+
+"QuizFrame.java": r'''import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+
+public class QuizFrame extends JFrame {
+    private final String studentName;
+    private final List<Question> questions;
+    private int currentQuestion = 0;
+    private int score = 0;
+    private int timeLeft = 30;
+
+    private final JLabel questionNumberLabel = new JLabel();
+    private final JLabel timerLabel = new JLabel();
+    private final JLabel questionLabel = new JLabel();
+    private final JRadioButton[] optionButtons = new JRadioButton[4];
+    private final ButtonGroup group = new ButtonGroup();
+    private final JButton nextButton = new JButton("NEXT");
+    private final Timer timer;
+
+    public QuizFrame(String studentName) {
+        this.studentName = studentName;
+        this.questions = new QuizManager().getQuestions().subList(0, 15);
+
+        setTitle("Java Online Quiz - " + studentName);
+        setSize(760, 520);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
+        JPanel main = new JPanel(new BorderLayout(15, 15));
+        main.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
+
+        JPanel top = new JPanel(new BorderLayout());
+        questionNumberLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        timerLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        timerLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        top.add(questionNumberLabel, BorderLayout.WEST);
+        top.add(timerLabel, BorderLayout.EAST);
+
+        questionLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        questionLabel.setVerticalAlignment(SwingConstants.TOP);
+        questionLabel.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
+
+        JPanel optionsPanel = new JPanel();
+        optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
+        for (int i = 0; i < 4; i++) {
+            optionButtons[i] = new JRadioButton();
+            optionButtons[i].setFont(new Font("Arial", Font.PLAIN, 16));
+            optionButtons[i].setAlignmentX(Component.LEFT_ALIGNMENT);
+            optionButtons[i].setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+            group.add(optionButtons[i]);
+            optionsPanel.add(optionButtons[i]);
+        }
+
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        nextButton.setFont(new Font("Arial", Font.BOLD, 15));
+        nextButton.addActionListener(e -> submitAndNext());
+        bottom.add(nextButton);
+
+        main.add(top, BorderLayout.NORTH);
+        main.add(questionLabel, BorderLayout.CENTER);
+
+        JPanel center = new JPanel(new BorderLayout());
+        center.add(questionLabel, BorderLayout.NORTH);
+        center.add(optionsPanel, BorderLayout.CENTER);
+        main.add(center, BorderLayout.CENTER);
+        main.add(bottom, BorderLayout.SOUTH);
+
+        add(main);
+
+        timer = new Timer(1000, e -> tick());
+        loadQuestion();
+        timer.start();
+        setVisible(true);
+    }
+
+    private void loadQuestion() {
+        Question q = questions.get(currentQuestion);
+        questionNumberLabel.setText("Question " + (currentQuestion + 1) + " of " + questions.size());
+        questionLabel.setText("<html><body style='width: 650px'>" +
+                (currentQuestion + 1) + ". " + q.getQuestion() + "</body></html>");
+
+        String[] options = q.getOptions();
+        group.clearSelection();
+        for (int i = 0; i < 4; i++) {
+            optionButtons[i].setText((char)('A' + i) + ". " + options[i]);
+        }
+
+        timeLeft = 30;
+        updateTimerLabel();
+        nextButton.setText(currentQuestion == questions.size() - 1 ? "SUBMIT QUIZ" : "NEXT");
+    }
+
+    private void tick() {
+        timeLeft--;
+        updateTimerLabel();
+        if (timeLeft <= 0) {
+            submitAndNext();
+        }
+    }
+
+    private void updateTimerLabel() {
+        timerLabel.setText("Time: " + timeLeft + " sec");
+    }
+
+    private void submitAndNext() {
+        int selected = -1;
+        for (int i = 0; i < 4; i++) {
+            if (optionButtons[i].isSelected()) {
+                selected = i;
+                break;
+            }
+        }
+
+        if (selected == -1 && timeLeft > 0) {
+            int choice = JOptionPane.showConfirmDialog(this,
+                    "You have not selected an answer. Continue?",
+                    "No Answer", JOptionPane.YES_NO_OPTION);
+            if (choice != JOptionPane.YES_OPTION) return;
+        }
+
+        if (selected == questions.get(currentQuestion).getCorrectAnswer()) {
+            score++;
+        }
+
+        if (currentQuestion == questions.size() - 1) {
+            timer.stop();
+            dispose();
+            new ResultFrame(studentName, score, questions.size());
+        } else {
+            currentQuestion++;
+            loadQuestion();
+        }
+    }
+}
+''',
+
+"ResultFrame.java": r'''import javax.swing.*;
+import java.awt.*;
+
+public class ResultFrame extends JFrame {
+    public ResultFrame(String studentName, int score, int total) {
+        setTitle("Quiz Result");
+        setSize(560, 430);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
+        double percentage = (score * 100.0) / total;
+        String grade;
+        if (percentage >= 90) grade = "A+";
+        else if (percentage >= 80) grade = "A";
+        else if (percentage >= 70) grade = "B";
+        else if (percentage >= 60) grade = "C";
+        else if (percentage >= 50) grade = "D";
+        else grade = "F";
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(35, 35, 35, 35));
+
+        JLabel title = new JLabel("QUIZ COMPLETED", SwingConstants.CENTER);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title.setFont(new Font("Arial", Font.BOLD, 28));
+
+        JLabel name = new JLabel("Student: " + studentName);
+        name.setAlignmentX(Component.CENTER_ALIGNMENT);
+        name.setFont(new Font("Arial", Font.PLAIN, 18));
+
+        JLabel scoreLabel = new JLabel("Score: " + score + " / " + total);
+        scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
+
+        JLabel percent = new JLabel(String.format("Percentage: %.1f%%", percentage));
+        percent.setAlignmentX(Component.CENTER_ALIGNMENT);
+        percent.setFont(new Font("Arial", Font.PLAIN, 20));
+
+        JLabel gradeLabel = new JLabel("Grade: " + grade);
+        gradeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gradeLabel.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JButton restart = new JButton("TAKE QUIZ AGAIN");
+        restart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        restart.setFont(new Font("Arial", Font.BOLD, 15));
+        restart.addActionListener(e -> {
+            dispose();
+            new LoginFrame();
+        });
+
+        JButton exit = new JButton("EXIT");
+        exit.setAlignmentX(Component.CENTER_ALIGNMENT);
+        exit.setFont(new Font("Arial", Font.BOLD, 15));
+        exit.addActionListener(e -> System.exit(0));
+
+        panel.add(title);
+        panel.add(Box.createVerticalStrut(25));
+        panel.add(name);
+        panel.add(Box.createVerticalStrut(15));
+        panel.add(scoreLabel);
+        panel.add(percent);
+        panel.add(gradeLabel);
+        panel.add(Box.createVerticalStrut(25));
+        panel.add(restart);
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(exit);
+
+        add(panel);
+        setVisible(true);
+    }
+}
+''',
+
+"README.txt": r'''ONLINE QUIZ APPLICATION - JAVA
+
+Project Type:
+Desktop GUI application using Core Java and Swing.
+
+Features:
+1. Student name login
+2. 15 Java MCQ questions selected randomly from a 20-question bank
+3. Four multiple-choice options
+4. 30-second timer for every question
+5. Automatic score calculation
+6. Percentage and grade calculation
+7. Restart and Exit options
+
+Requirements:
+- Java JDK 8 or newer
+- Any Java IDE such as IntelliJ IDEA, Eclipse, NetBeans, or VS Code
+
+How to Run:
+1. Extract the ZIP file.
+2. Open the project folder in your IDE.
+3. Compile all .java files.
+4. Run Main.java.
+
+Command line:
+javac *.java
+java Main
+
+OOP Concepts Demonstrated:
+- Classes and Objects
+- Encapsulation
+- Constructors
+- Methods
+- ArrayList
+- Inheritance from JFrame
+- Event handling
+- Exception-safe input validation
+
+Project Files:
+Main.java
+Question.java
+QuizManager.java
+LoginFrame.java
+QuizFrame.java
+ResultFrame.java
+README.txt
+'''
+}
+
+for name, content in files.items():
+    with open(os.path.join(base, name), "w", encoding="utf-8") as f:
+        f.write(content)
+
+zip_path = "/mnt/data/OnlineQuizApplication.zip"
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    for name in files:
+        z.write(os.path.join(base, name), arcname=f"OnlineQuizApplication/{name}")
+
+zip_path
